@@ -11,16 +11,16 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.font_manager as fm
 
 pygame.init()
-pygame.mixer.init() # --- Initialize audio mixer ---
+pygame.mixer.init()
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 986
-# Make window resizable and create a virtual surface for scaling
+
 real_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("RoboBash")
 
-# --- SOUND LOADING (UPDATED FOR DEBUGGING) ---
+
 def load_sound_safe(filename):
     if not os.path.exists(filename):
         print(f"AUDIO WARNING: Cannot find file -> '{filename}'")
@@ -35,14 +35,13 @@ def load_sound_safe(filename):
             def play(self): pass
         return DummySound()
 
-# NOTE: If these fail to load, convert them to .wav and change the extensions here!
-bgm_file = "asset/burn the map.mp3" # BGM usually works fine with MP3
+bgm_file = "asset/burn the map.mp3"
 iron_bang_snd = load_sound_safe("asset/iron bang.mp3")
-gunfire_snd = load_sound_safe("asset/gunfire.mp3")     # Machine Gun
-gunshot_snd = load_sound_safe("asset/gunshot.mp3") # Light Gun
-laser_snd = load_sound_safe("asset/lasergun.mp3")   # Laser Cannon
+gunfire_snd = load_sound_safe("asset/gunfire.mp3")
+gunshot_snd = load_sound_safe("asset/gunshot.mp3")
+laser_snd = load_sound_safe("asset/lasergun.mp3")
 
-# --- COLORS & FONTS ---
+
 WHITE, YELLOW, BLUE, GREEN, DARK_GRAY, BLACK, RED = (255, 255, 255), (255, 204, 0), (51, 153, 255), (51, 204, 51), (40, 40, 40), (0, 0, 0), (255, 50, 50)
 try:
     font = pygame.font.Font("asset/determination.ttf", 20)
@@ -60,7 +59,7 @@ def load_image_safe(filename, default_size):
         surf.fill((255, 0, 0, 100)) 
         return surf
 
-# --- ASSETS ---
+# ASSETS
 try: bg_img = pygame.transform.scale(pygame.image.load("asset/bg.png").convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT))
 except: bg_img = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT)); bg_img.fill((40, 40, 40))
 
@@ -107,7 +106,6 @@ PARTS_DATA = {
     ]
 }
 
-# --- OOP IMPLEMENTATION ---
 
 class Part:
     def __init__(self, data_dict):
@@ -344,7 +342,6 @@ class GameManager:
     def _generate_battle_arena(self):
         self.obstacles.clear()
         
-        # --- BLOCKED INVISIBLE CORNERS WITH NEW DIMENSIONS ---
         block_bl = pygame.Rect(0, SCREEN_HEIGHT - 280, 260, 280)
         block_br = pygame.Rect(SCREEN_WIDTH - 320, SCREEN_HEIGHT - 150, 320, 150)
         
@@ -423,7 +420,7 @@ def draw_part_description():
     ctrl = font_large.render("WASD / SPACE BAR" if manager.current_building_player == 1 else "ARROW KEYS / ENTER", True, "white")
     screen.blit(ctrl, ctrl.get_rect(centerx=bg_rect.centerx-30, top=bg_rect.bottom + 35))
 
-# --- DASHBOARD (Tkinter & Matplotlib) ---
+# DASHBOARD
 def show_statistics_dashboard():
     manager.tracker.export_to_csv()
     
@@ -433,7 +430,7 @@ def show_statistics_dashboard():
     font_path = "asset/determination.ttf"
     if os.path.exists(font_path): 
         pixel_font = fm.FontProperties(fname=font_path)
-        title_font = fm.FontProperties(fname=font_path, size=28) # --- FIX: Native Matplotlib Pixel Title ---
+        title_font = fm.FontProperties(fname=font_path, size=28)
     else: 
         pixel_font = fm.FontProperties(family='monospace')
         title_font = fm.FontProperties(family='monospace', size=28)
@@ -451,7 +448,6 @@ def show_statistics_dashboard():
     fig, axs = plt.subplots(2, 3, figsize=(14, 7))
     fig.patch.set_facecolor(ui_bg)
     
-    # --- FIX: Main Title drawn with pixel font ---
     fig.suptitle("MATCH ANALYTICS REPORT", color=p1_color, fontproperties=title_font)
     fig.tight_layout(pad=4.0, rect=[0, 0, 1, 0.94])
 
@@ -463,7 +459,7 @@ def show_statistics_dashboard():
         for item in ([ax.title, ax.xaxis.label, ax.yaxis.label]): 
             item.set_color(highlight); item.set_fontproperties(pixel_font)
 
-    # 1. PIE CHART
+    # PIE CHART
     axs[0, 0].set_title("ACCURACY RATIO", fontproperties=pixel_font)
     p1_hits = sum(1 for s in manager.tracker.match_log["shots_hit_miss"] if s["shooter"] == "p1" and s["hit"])
     p1_miss = sum(1 for s in manager.tracker.match_log["shots_hit_miss"] if s["shooter"] == "p1" and not s["hit"])
@@ -478,21 +474,21 @@ def show_statistics_dashboard():
         for t in texts + autotexts: t.set_fontproperties(pixel_font)
     else: axs[0, 0].text(0.5, 0.5, "NO SHOTS", ha='center', va='center', color=highlight, fontproperties=pixel_font)
 
-    # 2. LINE GRAPH
+    # LINE GRAPH
     axs[0, 1].set_title("HP REDUCTION OVER TIME", fontproperties=pixel_font)
     axs[0, 1].plot(manager.tracker.match_log["hp_timeline"]["p1"]["time"], manager.tracker.match_log["hp_timeline"]["p1"]["hp"], label="P1 HP", color=p1_color, linewidth=3)
     axs[0, 1].plot(manager.tracker.match_log["hp_timeline"]["p2"]["time"], manager.tracker.match_log["hp_timeline"]["p2"]["hp"], label="P2 HP", color=p2_color, linewidth=3)
     axs[0, 1].set_xlabel("Time (s)", fontproperties=pixel_font)
     legend = axs[0, 1].legend(prop=pixel_font); legend.get_frame().set_edgecolor(highlight)
 
-    # 3. HEATMAP
+    # HEATMAP
     axs[0, 2].set_title("MAP CONTROL (HEATMAP)", fontproperties=pixel_font)
     x_coords = [m[1] for m in manager.tracker.match_log["movement"]] + [m[3] for m in manager.tracker.match_log["movement"]]
     y_coords = [m[2] for m in manager.tracker.match_log["movement"]] + [m[4] for m in manager.tracker.match_log["movement"]]
     if x_coords: axs[0, 2].hist2d(x_coords, y_coords, bins=20, cmap='plasma', range=[[0, SCREEN_WIDTH], [0, SCREEN_HEIGHT]])
     axs[0, 2].invert_yaxis()
 
-    # 4. BAR CHART
+    # BAR CHART
     axs[1, 0].set_title("DAMAGE BY WEAPON TYPE", fontproperties=pixel_font)
     weapon_dmg = {}
     for d in manager.tracker.match_log["damage"]: weapon_dmg[d["weapon"]] = weapon_dmg.get(d["weapon"], 0) + d["dmg"]
@@ -502,7 +498,7 @@ def show_statistics_dashboard():
         axs[1, 0].set_xticks(range(len(keys))); axs[1, 0].set_xticklabels(keys, fontproperties=pixel_font)
         for bar in bars: axs[1, 0].text(bar.get_x() + bar.get_width()/2, bar.get_height()*1.02, str(int(bar.get_height())), ha='center', color=highlight, fontproperties=pixel_font)
 
-    # 5. SCATTER PLOT
+    # SCATTER PLOT
     axs[1, 1].set_title("WEIGHT VS DAMAGE (ALL MATCHES)", fontproperties=pixel_font)
     all_weights, all_dmgs = [], []
     try:
@@ -518,7 +514,7 @@ def show_statistics_dashboard():
         axs[1, 1].set_ylabel("Total Damage Dealt", fontproperties=pixel_font)
     else: axs[1, 1].text(0.5, 0.5, "NO DATA YET", ha='center', va='center', color=highlight, fontproperties=pixel_font)
 
-    # 6. STATISTICS TABLE
+    # STATISTICS TABLE
     axs[1, 2].axis('tight'); axs[1, 2].axis('off')
     axs[1, 2].set_title("SHOOTING FREQUENCY", fontproperties=pixel_font, pad=20)
     
@@ -554,14 +550,11 @@ def show_statistics_dashboard():
               bg="#ff4d4d", fg="white", relief="flat", padx=20, pady=5).pack(pady=10)
     root.mainloop()
 
-# --- MAIN LOOP ---
+# MAIN
 clock = pygame.time.Clock()
 running, run_dashboard, last_log_time = True, False, 0
 
 while running:
-    # -------------------------------------------------------------
-    # CALCULATE WINDOW SCALING OFFSETS FOR MOUSE CLICKS
-    # -------------------------------------------------------------
     cw, ch = real_screen.get_size()
     aspect_ratio = SCREEN_WIDTH / SCREEN_HEIGHT
     win_aspect = cw / ch
@@ -579,12 +572,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: running = False
         
-        # Mapping real window clicks to the logical surface coordinates
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mx, my = event.pos
             logic_x = int((mx - off_x) * (SCREEN_WIDTH / scale_w)) if scale_w > 0 else 0
             logic_y = int((my - off_y) * (SCREEN_HEIGHT / scale_h)) if scale_h > 0 else 0
-            pos = (logic_x, logic_y) # Mapped pos
+            pos = (logic_x, logic_y)
             
             if manager.current_state == "START" and main_start_btn_rect.collidepoint(pos):
                 manager.switch_state("GARAGE")
@@ -594,10 +586,10 @@ while running:
                 cat = CATEGORIES[manager.selected_tab_index]
                 if arrow_left_rect.collidepoint(pos): 
                     manager.current_parts[cat] = (manager.current_parts[cat] - 1) % 3
-                    iron_bang_snd.play() # --- PLAY GARAGE SOUND ---
+                    iron_bang_snd.play()
                 if arrow_right_rect.collidepoint(pos): 
                     manager.current_parts[cat] = (manager.current_parts[cat] + 1) % 3
-                    iron_bang_snd.play() # --- PLAY GARAGE SOUND ---
+                    iron_bang_snd.play()
                 
                 if next_btn_rect.collidepoint(pos) and not manager.is_overweight and not manager.is_overpower:
                     if manager.current_building_player == 1:
@@ -607,7 +599,6 @@ while running:
                         manager.initialize_match(manager.p1_loadout, manager.current_parts.copy())
                         manager.switch_state("BATTLE")
                         
-                        # --- START ARENA MUSIC ---
                         try:
                             if os.path.exists(bgm_file):
                                 pygame.mixer.music.load(bgm_file)
@@ -620,14 +611,14 @@ while running:
 
             elif manager.current_state == "BATTLE" and manager.show_end_menu:
                 if rematch_btn_rect.collidepoint(pos): 
-                    pygame.mixer.music.stop() # --- STOP BGM ---
+                    pygame.mixer.music.stop()
                     
                     saved_tracker = manager.tracker
                     manager.__init__() 
                     manager.tracker = saved_tracker
                     
                 elif exit_btn_rect.collidepoint(pos): 
-                    pygame.mixer.music.stop() # --- STOP BGM ---
+                    pygame.mixer.music.stop()
                     run_dashboard, running = True, False
 
     if manager.current_state == "START":
@@ -685,14 +676,13 @@ while running:
                 
                 if keys[pygame.K_SPACE] and p1.current_cooldown <= 0:
                     base_vx, base_vy = p1.facing[0]*15, p1.facing[1]*15
-                    
-                    # --- FIX: MACHINE GUN SHOOTS 3 BULLETS (SPREAD) ---
+
                     if p1.weapon_name == "Machine Gun":
                         spread = 4 
                         velocities = [
-                            (base_vx, base_vy), # Straight
-                            (base_vx - p1.facing[1]*spread, base_vy + p1.facing[0]*spread), # Left Angle
-                            (base_vx + p1.facing[1]*spread, base_vy - p1.facing[0]*spread)  # Right Angle
+                            (base_vx, base_vy),
+                            (base_vx - p1.facing[1]*spread, base_vy + p1.facing[0]*spread),
+                            (base_vx + p1.facing[1]*spread, base_vy - p1.facing[0]*spread)
                         ]
                         for vx, vy in velocities:
                             proj = Projectile(p1.hitbox_rect.centerx, p1.hitbox_rect.centery, vx, vy, p1.base_dmg, p1.player_id, p1.weapon_name, manager.tracker.get_current_time())
@@ -721,13 +711,12 @@ while running:
                 if keys[pygame.K_RETURN] and p2.current_cooldown <= 0:
                     base_vx, base_vy = p2.facing[0]*15, p2.facing[1]*15
                     
-                    # --- FIX: MACHINE GUN SHOOTS 3 BULLETS (SPREAD) ---
                     if p2.weapon_name == "Machine Gun":
                         spread = 4 
                         velocities = [
-                            (base_vx, base_vy), # Straight
-                            (base_vx - p2.facing[1]*spread, base_vy + p2.facing[0]*spread), # Left Angle
-                            (base_vx + p2.facing[1]*spread, base_vy - p2.facing[0]*spread)  # Right Angle
+                            (base_vx, base_vy),
+                            (base_vx - p2.facing[1]*spread, base_vy + p2.facing[0]*spread),
+                            (base_vx + p2.facing[1]*spread, base_vy - p2.facing[0]*spread)
                         ]
                         for vx, vy in velocities:
                             proj = Projectile(p2.hitbox_rect.centerx, p2.hitbox_rect.centery, vx, vy, p2.base_dmg, p2.player_id, p2.weapon_name, manager.tracker.get_current_time())
@@ -763,7 +752,7 @@ while running:
         if (p1.current_hp <= 0 or p2.current_hp <= 0) and manager.game_over_timer == 0:
             manager.winner_text = "PLAYER 2" if p1.current_hp <= 0 else "PLAYER 1"
             manager.game_over_timer = pygame.time.get_ticks()
-            pygame.mixer.stop() # <---- STOPS ALL GUNSHOT SOUNDS IMMEDIATELY
+            pygame.mixer.stop()
             
         if manager.game_over_timer > 0 and pygame.time.get_ticks() - manager.game_over_timer > 2000 and not manager.show_end_menu:
             manager.end_game()
@@ -798,9 +787,7 @@ while running:
             et = font.render("EXIT", True, WHITE)
             screen.blit(et, et.get_rect(center=exit_btn_rect.center))
 
-    # -------------------------------------------------------------
-    # DRAW THE LOGICAL SCREEN TO THE REAL RESIZABLE WINDOW
-    # -------------------------------------------------------------
+
     real_screen.fill(BLACK)
     if scale_w > 0 and scale_h > 0:
         scaled_screen = pygame.transform.scale(screen, (scale_w, scale_h))
