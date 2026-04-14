@@ -266,7 +266,7 @@ class DataTracker:
     def log_event(self, event_type, data):
         t = self.get_current_time()
         if event_type == "movement":
-            self.match_log["movement"].append([t, data["p1_x"], data["p1_y"], data["p2_x"], data["p2_y"]])
+            self.match_log["movement"].append([t, data["p1_x"], data["p1_y"], data["p1_hp"], data["p2_x"], data["p2_y"], data["p2_hp"]])
         elif event_type == "fire":
             self.match_log["shots_fired"].append({"time": t, "weapon": data["weapon"]})
         elif event_type == "shot_result":
@@ -278,25 +278,43 @@ class DataTracker:
             if data["shooter"] == "p1": self.match_log["parts"]["p1_dmg_dealt"] += data["dmg"]
             elif data["shooter"] == "p2": self.match_log["parts"]["p2_dmg_dealt"] += data["dmg"]
 
-    def export_to_csv(self):
+    def export_to_csv(self, p1=None, p2=None):
         m_file = "movement_logs.csv"
         m_exists = os.path.exists(m_file)
         try:
             with open(m_file, "a", newline="") as f:
                 writer = csv.writer(f)
-                if not m_exists: writer.writerow(["Match_ID", "Time(s)", "P1_X", "P1_Y", "P2_X", "P2_Y"])
+                if not m_exists: writer.writerow(["Match_ID", "Time(s)", "P1_X", "P1_Y", "P1_HP", "P2_X", "P2_Y", "P2_HP"])
                 for row in self.match_log["movement"]:
                     writer.writerow([self.current_match_id] + list(row))
         except: pass
 
         ml_file = "match_logs.csv"
         ml_exists = os.path.exists(ml_file)
+        
+        p1_shots = sum(1 for s in self.match_log["shots_hit_miss"] if s["shooter"] == "p1")
+        p1_hits = sum(1 for s in self.match_log["shots_hit_miss"] if s["shooter"] == "p1" and s["hit"])
+        p2_shots = sum(1 for s in self.match_log["shots_hit_miss"] if s["shooter"] == "p2")
+        p2_hits = sum(1 for s in self.match_log["shots_hit_miss"] if s["shooter"] == "p2" and s["hit"])
+
+        def get_part_names(player_obj):
+            if not player_obj: return ["Unknown"] * 6
+            part_dict = {type(pt).__name__: pt.name for pt in player_obj.equipped_parts}
+            return [
+                part_dict.get("Gun", "Unknown"),
+                part_dict.get("Chassis", "Unknown"),
+                part_dict.get("Motor", "Unknown"),
+                part_dict.get("Power", "Unknown"),
+                part_dict.get("Controller", "Unknown"),
+                part_dict.get("Linkage", "Unknown")
+            ]
+
         try:
             with open(ml_file, "a", newline="") as f:
                 writer = csv.writer(f)
-                if not ml_exists: writer.writerow(["Match_ID", "Player", "Total_Weight", "Total_Damage"])
-                writer.writerow([self.current_match_id, "P1", self.match_log["parts"]["p1_weight"], self.match_log["parts"]["p1_dmg_dealt"]])
-                writer.writerow([self.current_match_id, "P2", self.match_log["parts"]["p2_weight"], self.match_log["parts"]["p2_dmg_dealt"]])
+                if not ml_exists: writer.writerow(["Match_ID", "Player", "Total_Weight", "Total_Damage", "Weapon_Type", "Chassis", "Motor", "Power", "Controller", "Linkage", "Total_Shots", "Hits"])
+                writer.writerow([self.current_match_id, "P1", self.match_log["parts"]["p1_weight"], self.match_log["parts"]["p1_dmg_dealt"]] + get_part_names(p1) + [p1_shots, p1_hits])
+                writer.writerow([self.current_match_id, "P2", self.match_log["parts"]["p2_weight"], self.match_log["parts"]["p2_dmg_dealt"]] + get_part_names(p2) + [p2_shots, p2_hits])
         except: pass
 
 class GameManager:
@@ -422,7 +440,7 @@ def draw_part_description():
 
 # DASHBOARD
 def show_statistics_dashboard():
-    manager.tracker.export_to_csv()
+    manager.tracker.export_to_csv(p1=manager.player_list[0], p2=manager.player_list[1])
     
     plt.style.use('dark_background')
     ui_bg, panel_bg, highlight, p1_color, p2_color = "#1e222e", "#2a303c", "#fadb26", "#3399FF", "#33CC33"
@@ -483,8 +501,8 @@ def show_statistics_dashboard():
 
     # HEATMAP
     axs[0, 2].set_title("MAP CONTROL (HEATMAP)", fontproperties=pixel_font)
-    x_coords = [m[1] for m in manager.tracker.match_log["movement"]] + [m[3] for m in manager.tracker.match_log["movement"]]
-    y_coords = [m[2] for m in manager.tracker.match_log["movement"]] + [m[4] for m in manager.tracker.match_log["movement"]]
+    x_coords = [m[1] for m in manager.tracker.match_log["movement"]] + [m[4] for m in manager.tracker.match_log["movement"]]
+    y_coords = [m[2] for m in manager.tracker.match_log["movement"]] + [m[5] for m in manager.tracker.match_log["movement"]]
     if x_coords: axs[0, 2].hist2d(x_coords, y_coords, bins=20, cmap='plasma', range=[[0, SCREEN_WIDTH], [0, SCREEN_HEIGHT]])
     axs[0, 2].invert_yaxis()
 
@@ -661,7 +679,10 @@ while running:
         p1, p2 = manager.player_list[0], manager.player_list[1]
         
         if pygame.time.get_ticks() - last_log_time >= 1000 and manager.game_over_timer == 0:
-            manager.tracker.log_event("movement", {"p1_x": p1.position_x, "p1_y": p1.position_y, "p2_x": p2.position_x, "p2_y": p2.position_y})
+            manager.tracker.log_event("movement", {
+                "p1_x": p1.position_x, "p1_y": p1.position_y, "p1_hp": p1.current_hp, 
+                "p2_x": p2.position_x, "p2_y": p2.position_y, "p2_hp": p2.current_hp
+            })
             last_log_time = pygame.time.get_ticks()
 
         if manager.game_over_timer == 0:
