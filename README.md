@@ -13,7 +13,7 @@ RoboBash is a 2-player local arena combat game where each player builds a custom
 
 To clone this project:
 ```sh
-git clone https://github.com/ratamon260-create/RoboBash.git
+git clone https://github.com/ratamon2606-create/RoboBash.git
 cd RoboBash
 ```
 
@@ -107,7 +107,12 @@ All planned features were completed.
 ## External Sources
 
 Acknowledgements:
-1. Pygame — [https://www.pygame.org](https://www.pygame.org) — game engine (LGPL)
-2. Matplotlib — [https://matplotlib.org](https://matplotlib.org) — data visualizations
-3. _(Add credits for any audio, fonts, or art you did not create yourself — e.g. "Background music 'burn the map', Artist Name, source link, license.")_
-4. _(Add credit line for each borrowed sprite / font / sound.)_
+1. Pygame — [pygame.org](https://www.pygame.org) — game engine (LGPL)
+2. Matplotlib — [matplotlib.org](https://matplotlib.org) — data visualizations
+3. Determination — [dafont.com](https://www.dafont.com/determination.font) Lucca Cedro — main UI font
+4. Dogica Pixel — [dafont.com](https://www.dafont.com/dogica.font) Roberto Mocci — small UI font
+5. Burn the Map — [artlist.io](https://artlist.io/royalty-free-music/song/burn-the-map/6000740) AlexGrohl — background music for battle arena
+6. Iron Bang — [pixabay.com](https://pixabay.com/id/sound-effects/film-efek-khusus-iron-bang-119810/) masp005 — sound effect for changing parts in garage
+7. Gun Fire — [pixabay.com](https://pixabay.com/sound-effects/film-special-effects-gun-fire-346766/) Foisal72 — sound effect for Machine Gun shooting
+8. Gunshot — [pixabay.com](https://pixabay.com/sound-effects/film-special-effects-gunshot-352466/) Universfield— sound effect for Light Gun shooting
+9. Laser Gun — [pixabay.com](https://pixabay.com/sound-effects/film-special-effects-laser-gun-174976/) VoiceBosch — sound effect for Laser Cannon shooting
