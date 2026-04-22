@@ -1,13 +1,9 @@
-Match_ID,Player,Total_Weight,Total_Damage
-1775963928,P1,202,315
-1775963928,P2,85,92
-1775964717,P1,130,916
-1775964717,P2,137,717
-1775965467,P1,137,504
-1775965467,P2,137,448
-1775965771,P1,137,472
-1775965771,P2,137,504
-1775965850,P1,200,1029
-1775965850,P2,117,412
-1775965955,P1,122,668
-1775965955,P2,137,679
+Match_ID,Player,Total_Weight,Total_Damage,Weapon_Type,Chassis,Motor,Power,Controller,Linkage,Total_Shots,Hits
+1776124838,P1,137,504,Machine Gun,Heavy Armor,Basic Motor,Lead-Acid,Standard CPU,Tank Tracks,63,63
+1776124838,P2,137,360,Machine Gun,Heavy Armor,Basic Motor,Lead-Acid,Standard CPU,Tank Tracks,45,45
+1776270538,P1,143,595,Laser Cannon,Steel Frame,V8 Engine,Li-Ion,Rapid CPU,Wheels,20,17
+1776270538,P2,137,619,Machine Gun,Heavy Armor,Basic Motor,Lead-Acid,Standard CPU,Tank Tracks,95,47
+1776321203,P1,90,180,Light Gun,Steel Frame,V8 Engine,Li-Ion,Sniper CPU,Wheels,63,45
+1776321203,P2,93,296,Light Gun,Aero Body,Mag-Lev,Nuclear Core,Rapid CPU,Legs,84,74
+1776834084,P1,137,304,Machine Gun,Heavy Armor,Basic Motor,Lead-Acid,Standard CPU,Tank Tracks,81,38
+1776834084,P2,97,160,Light Gun,Steel Frame,Basic Motor,Nuclear Core,Standard CPU,Legs,55,40
