@@ -34,7 +34,7 @@
   The original project proposal is available in this repository: [Proposal.pdf](./Proposal.pdf)
 
 - **YouTube Presentation:**
-  Watch the project demonstration here: []
+  Watch the project demonstration here: https://youtu.be/cmsFBhB1GH8?si=rTTC_MeJ5GGBQ3o_
 
   The video covers: (1) a short intro and demonstration of the game and statistics dashboard, (2) an explanation of the class design and how classes interact, and (3) an explanation of the statistics and data visualization.
 
