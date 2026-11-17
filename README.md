@@ -9,6 +9,27 @@ RoboBash is a 2-player local arena combat game where each player builds a custom
 
 ---
 
+## Screenshots
+
+### Gameplay
+
+| Robot Customization | Battle Arena |
+|:---:|:---:|
+| ![Garage](screenshots/gameplay/PLAYER1_GARAGE.png) | ![Battle Arena](screenshots/gameplay/BATTLE_ARENA.png) |
+
+### Match Results
+
+![Match Result](screenshots/gameplay/MATCH_RESULT.png)
+
+### Match Analytics
+
+![Analytics Dashboard](screenshots/visualization/DASHBOARD.png)
+
+Additional visualizations are available in the
+[Analytics Documentation](screenshots/visualization/VISUALIZATION.md).
+
+---
+
 ## Installation
 
 To clone this project:
